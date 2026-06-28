@@ -1,0 +1,50 @@
+name: Build and Push Images
+
+# Build all three service images and publish them to Docker Hub on every push to main.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # also allow manual runs from the Actions tab
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    # One job definition, three images built in parallel.
+    strategy:
+      matrix:
+        include:
+          - name: frontend
+            image: gorjanstefanovski/worldcup-frontend
+            context: ./frontend/worldcup-frontend
+          - name: backend
+            image: gorjanstefanovski/worldcup-backend
+            context: ./backend
+          - name: ml-service
+            image: gorjanstefanovski/worldcup-ml-service
+            context: ./ml-service
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          provenance: false        # clean single-manifest image, simpler for K8s to pull
+          tags: |
+            ${{ matrix.image }}:latest
+            ${{ matrix.image }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
