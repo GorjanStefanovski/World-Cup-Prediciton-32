@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+joblib
+pandas
+
+# IMPORTANT: pin these two to the EXACT versions from your training environment
+# (the ones printed by xgboost.__version__ and sklearn.__version__ in your notebook,
+#  also saved in artifacts/metadata.json). A version mismatch can break model.pkl loading
+#  or silently change predictions.
+scikit-learn==1.9.0
+xgboost==3.3.0

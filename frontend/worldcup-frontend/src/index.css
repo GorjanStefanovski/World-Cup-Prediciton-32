@@ -1,0 +1,274 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+:root {
+  --pitch: #0a1a1e;        /* floodlit field at night */
+  --pitch-glow: #103035;   /* lighter wash under the lights */
+  --panel: #102b30;        /* card surface */
+  --panel-edge: #1d4046;   /* hairline borders */
+  --ink: #eaf4f1;          /* primary text */
+  --ink-muted: #7fa39d;    /* labels, meta */
+  --home: #2fd4b8;         /* home side — cool teal */
+  --away: #ff6f5e;         /* away side — warm coral */
+  --gold: #f5c542;         /* call to action + winner */
+  --gold-deep: #d8a91f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 520px at 50% -8%, var(--pitch-glow), transparent 70%),
+    var(--pitch);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+/* ---------- Masthead ---------- */
+.masthead { text-align: center; margin-bottom: 40px; }
+
+.eyebrow {
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.wordmark {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 4.2rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin: 6px 0 4px;
+  line-height: 0.95;
+}
+
+.tagline { color: var(--ink-muted); margin: 0; font-size: 1rem; }
+
+.stage { animation: rise 0.5s ease both; }
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.count {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+/* ---------- Match grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card__meta {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+}
+
+.tie {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.side {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 1.18rem;
+  line-height: 1.1;
+}
+
+.side--right { text-align: right; }
+
+.side--win { color: var(--gold); }
+
+.vs {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+/* ---------- Predict button ---------- */
+.predict {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0a1a1e;
+  background: var(--gold);
+  border: none;
+  border-radius: 9px;
+  padding: 11px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.predict:hover:not(:disabled) { background: var(--gold-deep); }
+.predict:active:not(:disabled) { transform: translateY(1px); }
+.predict:disabled { opacity: 0.6; cursor: default; }
+.predict--wide { width: 100%; margin-top: 4px; }
+
+/* ---------- Outcome: the tug-of-war bar ---------- */
+.outcome { display: flex; flex-direction: column; gap: 8px; }
+
+.bar {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--away);   /* away fills the remainder */
+  overflow: hidden;
+}
+
+.bar__home {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--home);   /* home fills from the left */
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bar__split {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--panel);
+  transform: translateX(-1px);
+}
+
+.outcome__label { margin: 0; font-size: 0.92rem; color: var(--ink-muted); }
+.outcome__label strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- Auth ---------- */
+.auth {
+  max-width: 380px;
+  margin: 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 16px;
+  padding: 8px;
+}
+
+.auth__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+
+.tab {
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--ink-muted);
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.tab--on { background: var(--pitch-glow); color: var(--ink); }
+
+.auth__form { padding: 16px 14px 14px; display: flex; flex-direction: column; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.field span {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.field input {
+  background: var(--pitch);
+  border: 1px solid var(--panel-edge);
+  border-radius: 9px;
+  padding: 11px 12px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--home);
+}
+
+/* ---------- Notes, links, ghost button ---------- */
+.note { font-size: 0.9rem; color: var(--ink-muted); }
+.note--err { color: var(--away); }
+.note--ok { color: var(--home); }
+
+.link {
+  background: none;
+  border: none;
+  color: var(--gold);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid var(--panel-edge);
+  color: var(--ink-muted);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+}
+
+.ghost:hover { color: var(--ink); border-color: var(--ink-muted); }
+
+.footer {
+  text-align: center;
+  margin-top: 48px;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage { animation: none; }
+  .bar__home { transition: none; }
+}
