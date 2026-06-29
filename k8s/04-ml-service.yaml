@@ -17,7 +17,7 @@ spec:
       containers:
         - name: ml-service
           image: gorjanstefanovski/worldcup-ml-service:latest
-          imagePullPolicy: IfNotPresent     # use the image built into Minikube, don't pull
+          imagePullPolicy: Always     # use the image built into Minikube, don't pull
           ports:
             - containerPort: 8000
           readinessProbe:

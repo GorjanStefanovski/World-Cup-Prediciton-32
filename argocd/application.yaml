@@ -1,0 +1,25 @@
+# Tells Argo CD to keep the cluster in sync with the k8s/ folder in our git repo.
+# Any push that changes those manifests is applied to the cluster automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: worldcup
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/GorjanStefanovski/World-Cup-Prediciton-32.git
+    targetRevision: main
+    path: k8s            # watch this folder
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: worldcup
+
+  syncPolicy:
+    automated:
+      prune: true        # delete resources removed from git
+      selfHeal: true     # revert manual drift back to what git says
+    syncOptions:
+      - CreateNamespace=true
