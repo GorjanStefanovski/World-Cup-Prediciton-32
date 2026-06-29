@@ -1,0 +1,46 @@
+# ML prediction service (FastAPI + XGBoost model).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-service
+  namespace: worldcup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-service
+  template:
+    metadata:
+      labels:
+        app: ml-service
+    spec:
+      containers:
+        - name: ml-service
+          image: gorjanstefanovski/worldcup-ml-service:latest
+          imagePullPolicy: IfNotPresent     # use the image built into Minikube, don't pull
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-service
+  namespace: worldcup
+spec:
+  selector:
+    app: ml-service
+  ports:
+    - port: 8000
+      targetPort: 8000

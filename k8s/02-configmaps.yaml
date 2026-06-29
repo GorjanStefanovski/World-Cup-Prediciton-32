@@ -1,0 +1,21 @@
+# Non-secret database settings used by the Postgres StatefulSet.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  namespace: worldcup
+data:
+  POSTGRES_DB: football_db
+  POSTGRES_USER: springuser
+---
+# Non-secret backend settings. The service names below (postgres, ml-service)
+# resolve via Kubernetes DNS inside the namespace.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: worldcup
+data:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/football_db
+  SPRING_DATASOURCE_USERNAME: springuser
+  FASTAPI_URL: http://ml-service:8000

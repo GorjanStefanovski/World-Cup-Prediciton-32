@@ -1,0 +1,48 @@
+# Spring Boot backend. Config comes from the ConfigMap; the DB password from the Secret.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: worldcup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: gorjanstefanovski/worldcup-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: backend-config       # SPRING_DATASOURCE_URL, _USERNAME, FASTAPI_URL
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30        # Spring Boot needs time to start + seed the DB
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: worldcup
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
