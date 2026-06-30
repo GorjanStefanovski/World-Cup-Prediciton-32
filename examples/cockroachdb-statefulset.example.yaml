@@ -1,0 +1,82 @@
+# Headless Service — lets the nodes discover each other by stable DNS names.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb-peers
+  namespace: worldcup
+  labels:
+    app: cockroachdb
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true      # peers must find each other before "ready"
+  selector:
+    app: cockroachdb
+  ports:
+    - name: grpc
+      port: 26257
+      targetPort: 26257
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+# Public Service — what the application connects to; load-balances across nodes.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb
+  namespace: worldcup
+  labels:
+    app: cockroachdb
+spec:
+  selector:
+    app: cockroachdb
+  ports:
+    - name: sql
+      port: 26257
+      targetPort: 26257
+---
+# StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cockroachdb
+  namespace: worldcup
+spec:
+  serviceName: cockroachdb-peers
+  replicas: 3                          # <-- scale out by raising this number
+  selector:
+    matchLabels:
+      app: cockroachdb
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      containers:
+        - name: cockroachdb
+          image: cockroachdb/cockroach:v24.1.0
+          ports:
+            - containerPort: 26257
+              name: grpc
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: datadir
+              mountPath: /cockroach/cockroach-data
+          command:
+            - "/bin/bash"
+            - "-ecx"
+            - >
+              exec /cockroach/cockroach start
+              --insecure
+              --advertise-host=$(hostname).cockroachdb-peers.worldcup.svc.cluster.local
+              --join=cockroachdb-0.cockroachdb-peers,cockroachdb-1.cockroachdb-peers,cockroachdb-2.cockroachdb-peers
+              --cache=25% --max-sql-memory=25%
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
