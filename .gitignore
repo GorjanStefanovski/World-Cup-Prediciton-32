@@ -32,3 +32,4 @@ ml-service/.venv/
 
 # NOTE: ml-service/artifacts/*.pkl and features.json are intentionally NOT ignored —
 # the FastAPI image needs them at build time.
+k8s/01-secrets.yaml

@@ -1,21 +1,17 @@
-# Orchestrates the whole app: Postgres + ML service + Spring backend + nginx frontend.
-# Service names (postgres, ml-service, backend) double as DNS hostnames on the
-# compose network — that's how the env-var URLs below resolve.
-
 services:
   postgres:
     image: postgres:15-alpine
     container_name: worldcup_db
     environment:
-      POSTGRES_USER: springuser
-      POSTGRES_PASSWORD: springpassword
-      POSTGRES_DB: football_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5433:5432"            # host 5433 -> container 5432 (avoids your local Postgres on 5432)
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U springuser -d football_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,25 +28,24 @@ services:
     build: ./backend
     container_name: worldcup_backend
     environment:
-      # Internal container port is 5432 (NOT the published 5433).
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/football_db
-      SPRING_DATASOURCE_USERNAME: springuser
-      SPRING_DATASOURCE_PASSWORD: springpassword
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       FASTAPI_URL: http://ml-service:8000
     ports:
       - "8080:8080"
     depends_on:
       postgres:
-        condition: service_healthy   # wait until the DB accepts connections
+        condition: service_healthy
       ml-service:
-        condition: service_healthy   # wait until the model is loaded
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
     build: ./frontend/worldcup-frontend
     container_name: worldcup_frontend
     ports:
-      - "3000:80"                # open http://localhost:3000
+      - "3000:80"
     depends_on:
       - backend
     restart: unless-stopped
